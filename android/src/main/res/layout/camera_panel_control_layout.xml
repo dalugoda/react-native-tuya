@@ -83,7 +83,7 @@
             android:drawablePadding="@dimen/mg_5"
             android:padding="@dimen/mg_20"
             android:gravity="center"
-            android:text="Setting"
+            android:text="Settings"
             android:textColor="@color/camera_panel_control_color" />
 
         <View
@@ -101,7 +101,7 @@
             android:drawablePadding="@dimen/mg_5"
             android:gravity="center"
             android:padding="@dimen/mg_20"
-            android:text="Photo album"
+            android:text="Photo Album"
             android:textColor="@color/camera_panel_control_color"
             android:textSize="@dimen/ts_13"/>
 

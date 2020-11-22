@@ -35,6 +35,11 @@ public class TYCameraManager extends ViewGroupManager<CustomCameraView> {
         view.init(mActivity, mCallerContext);
     }
 
+    @ReactProp(name = "folderPath")
+    public void setFolderPath(CustomCameraView view, String folderPath) {
+        view.setFolderPath(folderPath);
+    }
+
     @NonNull
     @Override
     protected CustomCameraView createViewInstance(@NonNull ThemedReactContext reactContext) {
@@ -46,10 +51,10 @@ public class TYCameraManager extends ViewGroupManager<CustomCameraView> {
         return MapBuilder.builder()
                 .put(
                  "onSettingsClick",
-                MapBuilder.of("phasedRegistrationNames",MapBuilder.of("bubbled", "onControllerBtnPress")))
+                MapBuilder.of("phasedRegistrationNames",MapBuilder.of("bubbled", "onSettingsPress")))
                 .put(
                    "onPhotoAlbumClick",
-                MapBuilder.of("phasedRegistrationNames",MapBuilder.of("bubbled", "onControllerBtnPress")))
+                MapBuilder.of("phasedRegistrationNames",MapBuilder.of("bubbled", "onSettingsPress")))
                 .build();
     }
 

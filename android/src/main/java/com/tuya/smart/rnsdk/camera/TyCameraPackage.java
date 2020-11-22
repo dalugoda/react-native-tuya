@@ -5,6 +5,7 @@ import com.facebook.react.bridge.NativeModule;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.uimanager.ViewManager;
 import com.tuya.smart.rnsdk.camera.activity.TYCameraManager;
+import com.tuya.smart.rnsdk.camera.activity.TYCameraPlaybackManager;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -23,7 +24,8 @@ public class TyCameraPackage implements ReactPackage {
     @Override
     public List<ViewManager> createViewManagers(@NonNull ReactApplicationContext reactContext) {
         return Arrays.<ViewManager>asList(
-                new TYCameraManager(reactContext.getCurrentActivity(), reactContext)
+                new TYCameraManager(reactContext.getCurrentActivity(), reactContext),
+                new TYCameraPlaybackManager(reactContext.getCurrentActivity(), reactContext)
         );
     }
 }

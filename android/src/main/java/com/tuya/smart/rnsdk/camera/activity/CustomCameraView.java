@@ -98,6 +98,7 @@ public class CustomCameraView extends RelativeLayout implements View.OnClickList
     private int sdkProvider;
 
     private String devId;
+    private String folderPath;
     private ITuyaCameraDevice mDeviceControl;
     private ITuyaSmartCameraP2P mSmartCameraP2P;
 
@@ -538,7 +539,7 @@ public class CustomCameraView extends RelativeLayout implements View.OnClickList
 
     private void getThumbnail() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/SmartLife/Thumbnail/";
+            String path = folderPath + "/Thumbnail/";
             File file = new File(path);
             if (!file.exists()) {
                 file.mkdirs();
@@ -552,7 +553,7 @@ public class CustomCameraView extends RelativeLayout implements View.OnClickList
 
                 File savedFile = new File(fPath);
                 Log.d("TAG", "savedFile.getParent() --> "+savedFile.getParent());
-                String modifiedPath = savedFile.getParent()+"/"+"CameraThumbnail"+".png";
+                String modifiedPath = savedFile.getParent()+"/"+devId+".png";
 //                CLLog.d("RecordStop","dir: "+modifiedPath);
                 File newFile = new File(modifiedPath);
                 savedFile.renameTo(newFile);
@@ -572,6 +573,10 @@ public class CustomCameraView extends RelativeLayout implements View.OnClickList
 
     public void setDevId (String devId) {
         this.devId = devId;
+    }
+
+    public void setFolderPath (String folderPath) {
+        this.folderPath = folderPath;
     }
 
     @Override
@@ -739,7 +744,7 @@ public class CustomCameraView extends RelativeLayout implements View.OnClickList
     private void recordClick() {
         if (!isRecording) {
             if (Constants.hasStoragePermission()) {
-                String picPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/SmartLife/Video/";
+                String picPath = folderPath + "/Video/"+devId+"/";
                 File file = new File(picPath);
                 if (!file.exists()) {
                     file.mkdirs();
@@ -801,7 +806,7 @@ public class CustomCameraView extends RelativeLayout implements View.OnClickList
 
     private void snapShotClick() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/SmartLife/ScreenShots/";
+            String path = folderPath + "/ScreenShots/"+devId+"/";
             File file = new File(path);
             if (!file.exists()) {
                 file.mkdirs();

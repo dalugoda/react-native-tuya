@@ -75,7 +75,8 @@
                 android:orientation="horizontal"
                 android:layout_weight="1"
                 android:layout_gravity="center_vertical"
-                android:gravity="center">
+                android:layout_margin="10dp"
+                android:gravity="right">
 
             <ImageView
                 android:id="@+id/camera_full_screen"

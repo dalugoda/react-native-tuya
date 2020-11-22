@@ -18,6 +18,10 @@ export type CameraNightVisionParams = {
   nightMode: string;
 };
 
+export type CameraPlaybackConfigParams = {
+  devId: string;
+};
+
 export function testFunction() {
   return tuya.testFunction();
 }
@@ -46,3 +50,6 @@ export function changeCameraNightVision(params: CameraNightVisionParams): Promis
   return tuya.changeCameraNightVision(params);
 }
 
+export function getPlayBackConfigInfo(params: CameraPlaybackConfigParams): Promise<any> {
+  return tuya.getPlayBackConfigInfo(params);
+}

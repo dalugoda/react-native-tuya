@@ -13,8 +13,12 @@ import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
 import com.tuya.smart.android.camera.api.ITuyaHomeCamera;
 import com.tuya.smart.android.common.utils.L;
+import com.tuya.smart.android.network.http.BusinessResponse;
+import com.tuya.smart.camera.ipccamerasdk.bean.ConfigCameraBean;
 import com.tuya.smart.camera.ipccamerasdk.p2p.ICameraP2P;
+import com.tuya.smart.camera.middleware.p2p.ICameraConfig;
 import com.tuya.smart.camera.middleware.p2p.ITuyaSmartCameraP2P;
+import com.tuya.smart.camera.middleware.p2p.TuyaSmartCameraP2P;
 import com.tuya.smart.camera.middleware.widget.TuyaCameraView;
 import com.tuya.smart.home.sdk.bean.HomeBean;
 import com.tuya.smart.home.sdk.callback.ITuyaGetHomeListCallback;
@@ -25,6 +29,7 @@ import androidx.annotation.NonNull;
 
 import com.tuya.smart.rnsdk.camera.utils.Constants;
 import com.tuya.smart.home.sdk.TuyaHomeSdk;
+import com.tuya.smart.rnsdk.camera.utils.ToastUtil;
 import com.tuya.smart.rnsdk.utils.TuyaReactUtils;
 import com.tuya.smart.sdk.api.IDevListener;
 import com.tuya.smart.sdk.bean.DeviceBean;
@@ -41,6 +46,7 @@ import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 
 import java.util.List;
+import java.util.Map;
 
 public class TuyaCameraModule extends ReactContextBaseJavaModule {
     public TuyaCameraView TuyaCameraView;
@@ -217,7 +223,7 @@ public class TuyaCameraModule extends ReactContextBaseJavaModule {
 
     public WritableMap getCameraInfo(String devId) {
         WritableMap camInfo = Arguments.createMap();
-        mCameraDevice =  TuyaHomeSdk.getDataInstance().getDeviceBean(devId);
+        mCameraDevice =  getCameraDevice(devId);
         if(mCameraDevice != null) {
             camInfo.putString("ip", mCameraDevice.getIp());
             camInfo.putString("devId", mCameraDevice.getDevId());
@@ -304,5 +310,62 @@ public class TuyaCameraModule extends ReactContextBaseJavaModule {
         } else {
             promise.reject("-1", "Camera not support.");
         }
+    }
+
+    private DeviceBean getCameraDevice(String devId) {
+        DeviceBean deviceBean = TuyaHomeSdk.getDataInstance().getDeviceBean(devId);
+        return deviceBean;
+    }
+
+    @ReactMethod
+    public void getPlayBackConfigInfo(ReadableMap params, final Promise promise) {
+        String devId = params.getString("devId");
+
+        mCameraDevice =  getCameraDevice(devId);
+        if(mCameraDevice != null) {
+            localKey = mCameraDevice.getLocalKey();
+        }
+
+        Map<String, Object> map = mCameraDevice.getSkills();
+        int p2pType = -1;
+        if (map == null || map.size() == 0) {
+            p2pType = -1;
+        } else {
+            p2pType = (Integer) (map.get("p2pType"));
+        }
+
+        int intentP2pType = p2pType;
+        int sdkProvider = intentP2pType == 1 ? 1 : 2;
+
+        mSmartCameraP2P = new TuyaSmartCameraP2P();
+
+        WritableMap camInfo = Arguments.createMap();
+        camInfo.putString("localKey", localKey);
+        camInfo.putInt("p2pType", sdkProvider);
+
+        getP2pInfo(devId, camInfo, mSmartCameraP2P, promise);
+    }
+
+    private void getP2pInfo(String devId, final WritableMap params, ITuyaSmartCameraP2P mSmartCameraP2P, final Promise promise) {
+        mSmartCameraP2P.requestCameraInfo(devId, new ICameraConfig() {
+            @Override
+            public void onFailure(BusinessResponse var1, ConfigCameraBean var2, String var3) {
+                promise.reject("-1", "Failure.");
+
+            }
+
+            @Override
+            public void onSuccess(BusinessResponse var1, ConfigCameraBean var2, String var3) {
+
+                String p2pWd = var2.getPassword();
+                String p2pId = var2.getP2pId();
+
+                params.putString("p2pWd", p2pWd);
+                params.putString("p2pId", p2pId);
+
+                promise.resolve(params);
+
+            }
+        });
     }
 }
