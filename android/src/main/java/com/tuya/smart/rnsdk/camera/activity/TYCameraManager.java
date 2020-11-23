@@ -55,6 +55,9 @@ public class TYCameraManager extends ViewGroupManager<CustomCameraView> {
                 .put(
                    "onPhotoAlbumClick",
                 MapBuilder.of("phasedRegistrationNames",MapBuilder.of("bubbled", "onSettingsPress")))
+                .put(
+                   "onReplayClick",
+                MapBuilder.of("phasedRegistrationNames",MapBuilder.of("bubbled", "onSettingsPress")))
                 .build();
     }
 

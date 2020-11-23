@@ -239,7 +239,7 @@ public class CustomCameraView extends RelativeLayout implements View.OnClickList
         speakTxt = findViewById(R.id.speak_Txt);
         recordTxt = findViewById(R.id.record_Txt);
         photoTxt = findViewById(R.id.photo_Txt);
-        //replayTxt = findViewById(R.id.replay_Txt);
+        replayTxt = findViewById(R.id.replay_Txt);
         settingTxt = findViewById(R.id.setting_Txt);
         photoAlbumTxt = findViewById(R.id.photo_album_Txt);
         settingTxt.setOnClickListener(this);
@@ -343,7 +343,7 @@ public class CustomCameraView extends RelativeLayout implements View.OnClickList
         speakTxt.setOnClickListener(this);
         recordTxt.setOnClickListener(this);
         photoTxt.setOnClickListener(this);
-       // replayTxt.setOnClickListener(this);
+        replayTxt.setOnClickListener(this);
         photoAlbumTxt.setOnClickListener(this);
 
         cloudStorageTxt.setOnClickListener(this);
@@ -600,20 +600,8 @@ public class CustomCameraView extends RelativeLayout implements View.OnClickList
         }
         else if (id == R.id.setting_Txt) {
             onSettingsBtnClick();
-           // callBackSettingsPress.invoke();
-//            Intent intent1 = new Intent(CameraLivePreviewActivity.this, SettingsActivity.class);
-//            intent1.putExtra("devId", devId);
-//            startActivity(intent1);
-        } else if (id == R.id.cloud_Txt) {
-//            if (sdkProvider == SDK_PROVIDER_V1) {
-//                showNotSupportToast();
-//                return;
-//            }
-//            Intent intent2 = new Intent(CameraLivePreviewActivity.this, CameraCloudStorageActivity.class);
-//            intent2.putExtra(INTENT_DEVID, devId);
-//            intent2.putExtra(INTENT_SDK_POROVIDER, sdkProvider);
-//            intent2.putExtra(INTENT_HOME_ID, HOME_ID);
-//            startActivity(intent2);
+        } else if (id == R.id.replay_Txt) {
+            onReplayBtnClick();
         } else if (id == R.id.message_center_Txt) {
 //            Intent intent3 = new Intent(CameraLivePreviewActivity.this, MotionDetectionActivity.class);
 //            intent3.putExtra(INTENT_DEVID, devId);
@@ -845,7 +833,7 @@ public class CustomCameraView extends RelativeLayout implements View.OnClickList
     private void recordStatue(boolean isRecording) {
         speakTxt.setEnabled(!isRecording);
         photoTxt.setEnabled(!isRecording);
-       // replayTxt.setEnabled(!isRecording);
+        replayTxt.setEnabled(!isRecording);
         recordTxt.setEnabled(true);
         recordTxt.setSelected(isRecording);
     }
@@ -949,6 +937,20 @@ public class CustomCameraView extends RelativeLayout implements View.OnClickList
             reactContext.getJSModule(RCTEventEmitter.class).receiveEvent(
                     getId(),
                     "onSettingsClick",
+                    event);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void onReplayBtnClick() {
+        try {
+            WritableMap event = Arguments.createMap();
+            event.putString("name", "Replay");
+            ReactContext reactContext = (ReactContext)getContext();
+            reactContext.getJSModule(RCTEventEmitter.class).receiveEvent(
+                    getId(),
+                    "onReplayClick",
                     event);
         } catch (Exception e) {
             e.printStackTrace();

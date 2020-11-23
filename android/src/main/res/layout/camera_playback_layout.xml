@@ -4,11 +4,6 @@
     android:layout_height="match_parent"
     android:id="@+id/camera_playback_view_container">
 
-    <TextView android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:text="Hello Bhagy"></TextView>
-
     <RelativeLayout
         android:id="@+id/camera_video_view_Rl"
         android:layout_width="match_parent"
