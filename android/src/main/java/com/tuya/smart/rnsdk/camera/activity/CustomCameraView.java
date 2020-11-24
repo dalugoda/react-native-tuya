@@ -287,9 +287,7 @@ public class CustomCameraView extends RelativeLayout implements View.OnClickList
     private void initData() {
         try {
             mCameraDevice =  TuyaHomeSdk.getDataInstance().getDeviceBean(devId);
-            Log.d("TAG", "device bean --> "+mCameraDevice);
             localKey = mCameraDevice.getLocalKey();
-            Log.d("TAG", "loal key --> "+localKey);
             Map<String, Object> map = mCameraDevice.getSkills();
             int p2pType = -1;
             if (map == null || map.size() == 0) {
@@ -308,7 +306,6 @@ public class CustomCameraView extends RelativeLayout implements View.OnClickList
             sdkProvider = intentP2pType == 1 ? 1 : 2;
             mVideoView.createVideoView(sdkProvider);
             if (null == mCameraP2P) {
-                Log.d("INFO ", "p2p type --> null");
                 showNotSupportToast();
             } else {
                 mCameraP2P.isEchoData(true);
@@ -360,7 +357,7 @@ public class CustomCameraView extends RelativeLayout implements View.OnClickList
             mSmartCameraP2P.requestCameraInfo(devId, new ICameraConfig() {
                 @Override
                 public void onFailure(BusinessResponse var1, ConfigCameraBean var2, String var3) {
-                    ToastUtil.shortToast(context, "get cameraInfo failed");
+                    ToastUtil.showToast(context, "get cameraInfo failed");
                 }
 
                 @Override
@@ -413,10 +410,10 @@ public class CustomCameraView extends RelativeLayout implements View.OnClickList
                     handlesnapshot(msg);
                     break;
                 case Constants.MSG_VIDEO_RECORD_BEGIN:
-                    ToastUtil.shortToast(context, "record start success");
+                    ToastUtil.showToast(context, "record start success");
                     break;
                 case Constants.MSG_VIDEO_RECORD_FAIL:
-                    ToastUtil.shortToast(context, "record start fail");
+                    ToastUtil.showToast(context, "record start fail");
                     break;
                 case Constants.MSG_VIDEO_RECORD_OVER:
                     handleVideoRecordOver(msg);
@@ -436,7 +433,7 @@ public class CustomCameraView extends RelativeLayout implements View.OnClickList
         if (msg.arg1 == Constants.ARG1_OPERATE_SUCCESS) {
             connect();
         } else {
-            ToastUtil.shortToast(context, "create device fail");
+            ToastUtil.showToast(context, "create device fail");
         }
     }
 
@@ -444,7 +441,7 @@ public class CustomCameraView extends RelativeLayout implements View.OnClickList
         if (msg.arg1 == Constants.ARG1_OPERATE_SUCCESS) {
             preview();
         } else {
-            ToastUtil.shortToast(context, "connect fail");
+            ToastUtil.showToast(context, "connect fail");
         }
     }
 
@@ -452,7 +449,7 @@ public class CustomCameraView extends RelativeLayout implements View.OnClickList
         if (msg.arg1 == Constants.ARG1_OPERATE_SUCCESS) {
             qualityTv.setText(videoClarity == ICameraP2P.HD ? "HD" : "SD");
         } else {
-            ToastUtil.shortToast(context, "operation fail");
+            ToastUtil.showToast(context, "operation fail");
         }
     }
 
@@ -460,39 +457,52 @@ public class CustomCameraView extends RelativeLayout implements View.OnClickList
         if (msg.arg1 == Constants.ARG1_OPERATE_SUCCESS) {
             muteImg.setSelected(previewMute == ICameraP2P.MUTE);
         } else {
-            ToastUtil.shortToast(context, "operation fail");
+            ToastUtil.showToast(context, "operation fail");
         }
     }
 
     private void handlesnapshot(Message msg) {
         if (msg.arg1 == Constants.ARG1_OPERATE_SUCCESS) {
-            ToastUtil.shortToast(context, "snapshot success " + msg.obj);
+            ToastUtil.showToast(context, "snapshot success " + msg.obj);
         } else {
-            ToastUtil.shortToast(context, "operation fail");
+            ToastUtil.showToast(context, "operation fail");
         }
     }
 
     private void handleVideoRecordOver(Message msg) {
         if (msg.arg1 == Constants.ARG1_OPERATE_SUCCESS) {
-            ToastUtil.shortToast(context, "record success " + msg.obj);
+            try {
+                String message = msg.obj.toString();
+                String path = message.split("\\.")[0];
+                String[] pathString = path.split("/");
+                String fileName = pathString[pathString.length - 1];
+
+                String location = "Storage/SmartLife/Videos/" + devId + "/" + fileName + ".mp4";
+
+                String filePath = String.format("Location: %s\nRecord Saved Successfully", location);
+
+                ToastUtil.showToast(context, filePath);
+            } catch (Exception ex){
+                ToastUtil.showToast(context, msg.obj.toString());
+            }
         } else {
-            ToastUtil.shortToast(context, "operation fail");
+            ToastUtil.showToast(context, "operation fail");
         }
     }
 
     private void handleStartTalk(Message msg) {
         if (msg.arg1 == Constants.ARG1_OPERATE_SUCCESS) {
-            ToastUtil.shortToast(context, "start talk success");
+            ToastUtil.showToast(context, "start talk success");
         } else {
-            ToastUtil.shortToast(context, "operation fail ");
+            ToastUtil.showToast(context, "operation fail ");
         }
     }
 
     private void handleStopTalk(Message msg) {
         if (msg.arg1 == Constants.ARG1_OPERATE_SUCCESS) {
-            ToastUtil.shortToast(context, "stop talk success");
+            ToastUtil.showToast(context, "stop talk success");
         } else {
-            ToastUtil.shortToast(context, "operation fail");
+            ToastUtil.showToast(context, "operation fail");
         }
     }
 
@@ -517,7 +527,6 @@ public class CustomCameraView extends RelativeLayout implements View.OnClickList
         mCameraP2P.startPreview(new OperationDelegateCallBack() {
             @Override
             public void onSuccess(int sessionId, int requestId, String data) {
-                Log.d("TAG", "start preview onSuccess -->");
                 progressVideoView.setVisibility(View.GONE);
                 // mVideoView.onResume();
                 isPlay = true;
@@ -549,10 +558,8 @@ public class CustomCameraView extends RelativeLayout implements View.OnClickList
         mCameraP2P.snapshot(picPath, context, ICameraP2P.PLAYMODE.LIVE, new OperationDelegateCallBack() {
             @Override
             public void onSuccess(int sessionId, int requestId, String fPath) {
-                Log.d("TAG", "snapshot data --> "+fPath);// "/storage/emulated/0/SmartLife/Thumbnail/1603367041293.png"
 
                 File savedFile = new File(fPath);
-                Log.d("TAG", "savedFile.getParent() --> "+savedFile.getParent());
                 String modifiedPath = savedFile.getParent()+"/"+devId+".png";
 //                CLLog.d("RecordStop","dir: "+modifiedPath);
                 File newFile = new File(modifiedPath);
@@ -568,7 +575,7 @@ public class CustomCameraView extends RelativeLayout implements View.OnClickList
     }
 
     private void showNotSupportToast() {
-        ToastUtil.shortToast(context, "device is not support!");
+        ToastUtil.showToast(context, "device is not support!");
     }
 
     public void setDevId (String devId) {
@@ -712,7 +719,6 @@ public class CustomCameraView extends RelativeLayout implements View.OnClickList
                 mCameraP2P.startAudioTalk(new OperationDelegateCallBack() {
                     @Override
                     public void onSuccess(int sessionId, int requestId, String data) {
-                        Log.d("TAG", "start speaking -->" + data);
                         isSpeaking = true;
                         mHandler.sendMessage(MessageUtil.getMessage(Constants.MSG_TALK_BACK_BEGIN, Constants.ARG1_OPERATE_SUCCESS));
                     }
@@ -763,7 +769,7 @@ public class CustomCameraView extends RelativeLayout implements View.OnClickList
             mCameraP2P.stopRecordLocalMp4(new OperationDelegateCallBack() {
                 @Override
                 public void onSuccess(int sessionId, int requestId, String recFPath) {
-                    //String currentTime = " ";
+                    String currentTime = " ";
                     try {
 //                        Date c = Calendar.getInstance().getTime();
 //                        SimpleDateFormat df = new SimpleDateFormat("dd-MMM-yyyy-hh:mm:ss");
@@ -774,7 +780,9 @@ public class CustomCameraView extends RelativeLayout implements View.OnClickList
 //                        File newFile = new File(modifiedPath);
 //                        savedFile.renameTo(newFile);
 //
-//                        String recordFileSavingPath = "Storage/SmartLife/Video/" + currentTime + ".mp4";
+//                        String recordFileSavingPath = "Storage/SmartLife/Video/" + devId+"/"+currentTime + ".mp4";
+//                        Log.d("TAG", "recordFileSavingPath-->"+recordFileSavingPath);
+
                         isRecording = false;
                         mHandler.sendMessage(MessageUtil.getMessage(Constants.MSG_VIDEO_RECORD_OVER, Constants.ARG1_OPERATE_SUCCESS, recFPath));
                     } catch (Exception ex){
@@ -815,7 +823,7 @@ public class CustomCameraView extends RelativeLayout implements View.OnClickList
                     File newFile = new File(modifiedPath);
                     savedFile.renameTo(newFile);
 
-                    String screenShotFileSavingPath = "Storage/SmartLife/ScreenShots/" + currentTime + ".png";
+                    String screenShotFileSavingPath = "Storage/SmartLife/ScreenShots/"+devId+"/" + currentTime + ".png";
 
                     mHandler.sendMessage(MessageUtil.getMessage(Constants.MSG_SCREENSHOT, Constants.ARG1_OPERATE_SUCCESS, screenShotFileSavingPath));
                 } catch (Exception ex) {
