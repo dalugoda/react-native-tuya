@@ -58,6 +58,9 @@ export function getPlayBackConfigInfo(params: CameraPlaybackConfigParams): Promi
   return tuya.getPlayBackConfigInfo(params);
 }
 
+export function getCameraHistoryData(params: CameraHistoryParams): Promise<any> {
+  return tuya.getCameraHistoryData(params);
+}
 export function getHistoryData(params: CameraHistoryParams): Promise<any> {
   return tuya.getHistoryData(params);
 }

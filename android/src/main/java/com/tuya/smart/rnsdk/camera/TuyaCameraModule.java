@@ -386,6 +386,12 @@ public class TuyaCameraModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
+    public void getCameraHistoryData(ReadableMap params, final Promise promise) {
+        promise.resolve("test data");
+
+    }
+
+    @ReactMethod
     public void getHistoryData(ReadableMap params, final Promise promise) {
         mBackDataMonthCache = new HashMap<>();
         mBackDataDayCache = new HashMap<>();
