@@ -386,7 +386,7 @@ public class TuyaCameraModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void getCameraHistoryData(ReadableMap params, final Promise promise) {
+    public void getCameraHistoryData(final Promise promise) {
         promise.resolve("test data");
 
     }
