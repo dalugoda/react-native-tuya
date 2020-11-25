@@ -802,7 +802,7 @@ public class CustomCameraView extends RelativeLayout implements View.OnClickList
 
     private void snapShotClick() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            String path = folderPath + "/ScreenShots/"+devId+"/";
+            String path = folderPath + "/snapshots/"+devId+"/";
             File file = new File(path);
             if (!file.exists()) {
                 file.mkdirs();
@@ -823,7 +823,7 @@ public class CustomCameraView extends RelativeLayout implements View.OnClickList
                     File newFile = new File(modifiedPath);
                     savedFile.renameTo(newFile);
 
-                    String screenShotFileSavingPath = "Storage/SmartLife/ScreenShots/"+devId+"/" + currentTime + ".png";
+                    String screenShotFileSavingPath = "Storage/SmartLife/snapshots/"+devId+"/" + currentTime + ".png";
 
                     mHandler.sendMessage(MessageUtil.getMessage(Constants.MSG_SCREENSHOT, Constants.ARG1_OPERATE_SUCCESS, screenShotFileSavingPath));
                 } catch (Exception ex) {
