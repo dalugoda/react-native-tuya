@@ -48,7 +48,7 @@ TODO: Add long description of the pod here.
   
   s.subspec 'SmartScene' do |ss|
     ss.source_files = 'Camera/Classes/SmartScene/**/*.{h,m}'
-    ss.resources = 'Camera/Classes/SmartScene/Assets/**/*'
+    ss.resources = 'Classes/IPC/Assets/*','Classes/IPC/Assets/*.lproj'
     
     ss.dependency 'CameraSDK/Base'
     
