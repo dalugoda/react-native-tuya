@@ -22,6 +22,10 @@ export type CameraPlaybackConfigParams = {
   devId: string;
 };
 
+export type CameraHistoryParams = {
+  selectedDate: string;
+};
+
 export function testFunction() {
   return tuya.testFunction();
 }
@@ -53,3 +57,8 @@ export function changeCameraNightVision(params: CameraNightVisionParams): Promis
 export function getPlayBackConfigInfo(params: CameraPlaybackConfigParams): Promise<any> {
   return tuya.getPlayBackConfigInfo(params);
 }
+
+export function getHistoryData(params: CameraHistoryParams): Promise<any> {
+  return tuya.getHistoryData(params);
+}
+

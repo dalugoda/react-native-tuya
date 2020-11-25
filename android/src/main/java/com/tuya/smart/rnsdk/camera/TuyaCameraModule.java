@@ -2,8 +2,11 @@ package com.tuya.smart.rnsdk.camera;
 
 import android.content.Intent;
 import android.os.Environment;
+import android.os.Message;
+import android.text.TextUtils;
 import android.util.Log;
 
+import com.alibaba.fastjson.JSONException;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -14,7 +17,10 @@ import com.facebook.react.bridge.WritableMap;
 import com.tuya.smart.android.camera.api.ITuyaHomeCamera;
 import com.tuya.smart.android.common.utils.L;
 import com.tuya.smart.android.network.http.BusinessResponse;
+import com.tuya.smart.camera.camerasdk.bean.TimePieceBean;
+import com.tuya.smart.camera.camerasdk.typlayer.callback.OperationDelegateCallBack;
 import com.tuya.smart.camera.ipccamerasdk.bean.ConfigCameraBean;
+import com.tuya.smart.camera.ipccamerasdk.bean.MonthDays;
 import com.tuya.smart.camera.ipccamerasdk.p2p.ICameraP2P;
 import com.tuya.smart.camera.middleware.p2p.ICameraConfig;
 import com.tuya.smart.camera.middleware.p2p.ITuyaSmartCameraP2P;
@@ -27,6 +33,7 @@ import com.tuya.smart.rnsdk.camera.activity.CameraLivePreviewActivity;
 
 import androidx.annotation.NonNull;
 
+import com.tuya.smart.rnsdk.camera.activity.RecordInfoBean;
 import com.tuya.smart.rnsdk.camera.utils.Constants;
 import com.tuya.smart.home.sdk.TuyaHomeSdk;
 import com.tuya.smart.rnsdk.camera.utils.ToastUtil;
@@ -39,14 +46,22 @@ import com.tuyasmart.camera.devicecontrol.api.ITuyaCameraDeviceControlCallback;
 import com.tuyasmart.camera.devicecontrol.bean.DpBasicIndicator;
 import com.tuyasmart.camera.devicecontrol.bean.DpBasicNightvision;
 import com.tuyasmart.camera.devicecontrol.model.DpNotifyModel;
+import com.tuyasmart.stencil.utils.MessageUtil;
 import com.tuyasmart.stencil.utils.PreferencesUtil;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.tuya.smart.rnsdk.camera.utils.Constants.ARG1_OPERATE_FAIL;
+import static com.tuya.smart.rnsdk.camera.utils.Constants.ARG1_OPERATE_SUCCESS;
+import static com.tuya.smart.rnsdk.camera.utils.Constants.MSG_DATA_DATE;
+import static com.tuya.smart.rnsdk.camera.utils.Constants.MSG_DATA_DATE_BY_DAY_FAIL;
+import static com.tuya.smart.rnsdk.camera.utils.Constants.MSG_DATA_DATE_BY_DAY_SUCC;
 
 public class TuyaCameraModule extends ReactContextBaseJavaModule {
     public TuyaCameraView TuyaCameraView;
@@ -59,7 +74,8 @@ public class TuyaCameraModule extends ReactContextBaseJavaModule {
     private static ITuyaHomeCamera homeCamera;
     public static DeviceBean mCameraDevice;
     ITuyaCameraDevice mTuyaCameraDevice;
-
+    protected Map<String, List<String>> mBackDataMonthCache;
+    protected Map<String, List<TimePieceBean>> mBackDataDayCache;
 
     public TuyaCameraModule (ReactApplicationContext reactContext) {
         this.reactContext = reactContext;
@@ -367,5 +383,112 @@ public class TuyaCameraModule extends ReactContextBaseJavaModule {
 
             }
         });
+    }
+
+    @ReactMethod
+    public void getHistoryData(ReadableMap params, final Promise promise) {
+        mBackDataMonthCache = new HashMap<>();
+        mBackDataDayCache = new HashMap<>();
+        final String date = params.getString("date");
+
+        if (TextUtils.isEmpty(date)) {
+            return;
+        }
+        if (date.contains("/")) {
+            String[] substring = date.split("/");
+            if (substring.length > 2) {
+                try {
+                    int year = Integer.parseInt(substring[0]);
+                    int mouth = Integer.parseInt(substring[1]);
+                    int queryDay = Integer.parseInt(substring[2]);
+                    mCameraP2P.queryRecordDaysByMonth(year, mouth, new OperationDelegateCallBack() {
+                        @Override
+                        public void onSuccess(int sessionId, int requestId, String data) {
+                            MonthDays monthDays = com.alibaba.fastjson.JSONObject.parseObject(data, MonthDays.class);
+                            mBackDataMonthCache.put(mCameraP2P.getMonthKey(), monthDays.getDataDays());
+                            L.e("TAG",   "MonthDays --- " + data);
+                            handleDataDate(date, MessageUtil.getMessage(MSG_DATA_DATE, ARG1_OPERATE_SUCCESS, data), promise);
+
+//                            mHandler.sendMessage(MessageUtil.getMessage(MSG_DATA_DATE, ARG1_OPERATE_SUCCESS, data));
+                        }
+
+                        @Override
+                        public void onFailure(int sessionId, int requestId, int errCode) {
+                            promise.reject("-1", "Failure.");
+                        }
+                    });
+                } catch (Exception e) {
+                   // ToastUtil.shortToast(context, "Input Error");
+                    promise.reject("-1", "Failure.");
+                }
+            }
+        }
+    }
+
+    private void handleDataDate(final String date, Message msg, final Promise promise) {
+        if (msg.arg1 == ARG1_OPERATE_SUCCESS) {
+            List<String> days = mBackDataMonthCache.get(mCameraP2P.getMonthKey());
+
+            try {
+                if (days.size() == 0) {
+                    // showErrorToast();
+                    return;
+                }
+                if (!TextUtils.isEmpty(date) && date.contains("/")) {
+                    String[] substring = date.split("/");
+                    int year = Integer.parseInt(substring[0]);
+                    int mouth = Integer.parseInt(substring[1]);
+                    int day = Integer.parseInt(substring[2]);
+                    mCameraP2P.queryRecordTimeSliceByDay(year, mouth, day, new OperationDelegateCallBack() {
+                        @Override
+                        public void onSuccess(int sessionId, int requestId, String data) {
+                            L.e("TAG", date + " --- " + data);
+                            parsePlaybackData(data, promise);
+                        }
+
+                        @Override
+                        public void onFailure(int sessionId, int requestId, int errCode) {
+                            promise.reject("-1", "Failure.");
+                        }
+                    });
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        } else {
+
+        }
+    }
+
+    private void parsePlaybackData(Object obj, final Promise promise) {
+        RecordInfoBean recordInfoBean = com.alibaba.fastjson.JSONObject.parseObject(obj.toString(), RecordInfoBean.class);
+        if (recordInfoBean.getCount() != 0) {
+            List<TimePieceBean> timePieceBeanList = recordInfoBean.getItems();
+            if (timePieceBeanList != null && timePieceBeanList.size() != 0) {
+                mBackDataDayCache.put(mCameraP2P.getDayKey(), timePieceBeanList);
+            }
+            handleDataDay(MessageUtil.getMessage(MSG_DATA_DATE_BY_DAY_SUCC, ARG1_OPERATE_SUCCESS), promise);
+            //mHandler.sendMessage(MessageUtil.getMessage(MSG_DATA_DATE_BY_DAY_SUCC, ARG1_OPERATE_SUCCESS));
+        } else {
+            promise.reject("-1", "Failure.");
+
+        }
+    }
+
+    private void handleDataDay(Message msg, final Promise promise) {
+        if (msg.arg1 == ARG1_OPERATE_SUCCESS) {
+            //Timepieces with data for the query day
+            List<TimePieceBean> timePieceBeans = mBackDataDayCache.get(mCameraP2P.getDayKey());
+            if (timePieceBeans != null) {
+                Log.d("TAG", "Time piece bean list"+timePieceBeans.size());
+                promise.resolve(timePieceBeans);
+
+            } else {
+                promise.reject("0", "No data.");
+            }
+
+        } else {
+
+        }
     }
 }
