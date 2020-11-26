@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
   s.source_files  = "ios/**/*.{h,m}"
 
   s.dependency 'React'
-  s.dependency 'TuyaSmartHomeKit', '~> 3.17.6'
+  s.dependency 'TuyaSmartHomeKit'
   s.dependency 'TuyaSmartCameraKit'
   s.dependency 'TYEncryptImage'
 end
