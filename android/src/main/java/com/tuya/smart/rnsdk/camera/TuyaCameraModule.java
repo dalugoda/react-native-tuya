@@ -386,6 +386,11 @@ public class TuyaCameraModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
+    public void getHistoryTest(final Promise promise) {
+        promise.resolve("test data");
+    }
+
+    @ReactMethod
     public void getCameraHistoryData(final Promise promise) {
         promise.resolve("test data");
 
