@@ -30,6 +30,12 @@ export type CameraHistoryParams = {
   selectedDate: string;
 };
 
+export type PlayCameraHistoryParams = {
+  startTime: int;
+  endTime: int;
+  playStartTime: int;
+};
+
 export function testFunction() {
   return tuya.testFunction();
 }
@@ -66,8 +72,8 @@ export function getCameraHistoryTest(params: CameraHistoryParams): Promise<any> 
   return tuya.getHistoryData(params);
 }
 
-export function playCameraHistory(): Promise<any> {
-  return tuya.playHistory();
+export function playCameraHistory(params: PlayCameraHistoryParams): Promise<any> {
+  return tuya.playHistory(params);
 }
 
 // export function historyDataPlay(): Promise<any> {
