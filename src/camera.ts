@@ -78,3 +78,7 @@ export function playHistoryTest(): Promise<any> {
   return tuya.getTumbnail();
 }
 
+export function playCameraHistoryTest(): Promise<any> {
+  return tuya.getTumbnail();
+}
+
