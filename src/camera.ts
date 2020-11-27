@@ -62,17 +62,17 @@ export function getPlayBackConfigInfo(params: CameraPlaybackConfigParams): Promi
   return tuya.getPlayBackConfigInfo(params);
 }
 
-export function getCameraHistoryTest(params: CameraHistoryParams): Promise<any> {
+export function getCameraHistoryData(params: CameraHistoryParams): Promise<any> {
   return tuya.getHistoryData(params);
 }
 
-export function playCameraHistoryTest(): Promise<any> {
-  return tuya.getTumbnail();
+export function playCameraHistory(): Promise<any> {
+  return tuya.playHistory();
 }
 
-export function historyDataPlay(): Promise<any> {
-  return tuya.getTumbnail();
-}
+// export function historyDataPlay(): Promise<any> {
+//   return tuya.getTumbnail();
+// }
 // export function getCameraHistory(): Promise<any> {
 //   return tuya.getCameraHistoryData();
 // }

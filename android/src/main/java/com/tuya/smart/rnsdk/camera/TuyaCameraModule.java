@@ -504,5 +504,39 @@ public class TuyaCameraModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void playHistory(ReadableMap params, final Promise promise) {
+        int startTime = params.getInt("startTime");
+        int endTime = params.getInt("endTime");
+        int playStartTime = params.getInt("playStartTime");
+        startPlayback(startTime, endTime, playStartTime, promise);
+    }
+
+    private void startPlayback(int startTime, int endTime, int playStartTime, final Promise promise) {
+
+            if (null != mCameraP2P) {
+                mCameraP2P.startPlayBack(startTime, endTime, playStartTime, new OperationDelegateCallBack() {
+                    @Override
+                    public void onSuccess(int sessionId, int requestId, String data) {
+                       promise.resolve(data);
+                    }
+
+                    @Override
+                    public void onFailure(int sessionId, int requestId, int errCode) {
+                        promise.reject("-1", "Failure.");
+
+                    }
+                }, new OperationDelegateCallBack() {
+                    @Override
+                    public void onSuccess(int sessionId, int requestId, String data) {
+                       // isPlayback = false;
+                    }
+
+                    @Override
+                    public void onFailure(int sessionId, int requestId, int errCode) {
+                        promise.reject("-1", "Failure.");
+
+                    }
+                });
+            }
+
     }
 }
