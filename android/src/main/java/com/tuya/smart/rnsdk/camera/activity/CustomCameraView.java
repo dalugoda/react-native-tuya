@@ -954,7 +954,7 @@ public class CustomCameraView extends RelativeLayout implements View.OnClickList
     public void onReplayBtnClick() {
         try {
             WritableMap event = Arguments.createMap();
-            event.putString("name", "Replay");
+            event.putString("name", "playback");
             ReactContext reactContext = (ReactContext)getContext();
             reactContext.getJSModule(RCTEventEmitter.class).receiveEvent(
                     getId(),
