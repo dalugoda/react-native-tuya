@@ -13,6 +13,10 @@ export type CameraDetailsParams = {
   devId: string;
 };
 
+export type CameraIndicatorParams = {
+  devId: string;
+};
+
 export type CameraNightVisionParams = {
   devId: string;
   nightMode: string;
@@ -46,7 +50,7 @@ export function getDetails(params: CameraDetailsParams): Promise<any> {
   return tuya.getDetails(params);
 }
 
-export function changeCameraIndicatorStatus(params: CameraDetailsParams): Promise<any> {
+export function changeCameraIndicatorStatus(params: CameraIndicatorParams): Promise<any> {
   return tuya.changeCameraIndicatorStatus(params);
 }
 
