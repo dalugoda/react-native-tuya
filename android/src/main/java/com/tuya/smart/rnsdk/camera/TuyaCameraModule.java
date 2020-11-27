@@ -6,6 +6,7 @@ import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Promise;
@@ -25,6 +26,7 @@ import com.tuya.smart.camera.ipccamerasdk.p2p.ICameraP2P;
 import com.tuya.smart.camera.middleware.p2p.ICameraConfig;
 import com.tuya.smart.camera.middleware.p2p.ITuyaSmartCameraP2P;
 import com.tuya.smart.camera.middleware.p2p.TuyaSmartCameraP2P;
+import com.tuya.smart.camera.middleware.p2p.TuyaSmartCameraP2PFactory;
 import com.tuya.smart.camera.middleware.widget.TuyaCameraView;
 import com.tuya.smart.home.sdk.bean.HomeBean;
 import com.tuya.smart.home.sdk.callback.ITuyaGetHomeListCallback;
@@ -64,6 +66,7 @@ import static com.tuya.smart.rnsdk.camera.utils.Constants.MSG_DATA_DATE_BY_DAY_F
 import static com.tuya.smart.rnsdk.camera.utils.Constants.MSG_DATA_DATE_BY_DAY_SUCC;
 
 public class TuyaCameraModule extends ReactContextBaseJavaModule {
+    private String TAG = "TuyaCameraModule";
     public TuyaCameraView TuyaCameraView;
     ReactApplicationContext reactContext;
     public static  long HOME_ID = 1099001;
@@ -268,7 +271,7 @@ public class TuyaCameraModule extends ReactContextBaseJavaModule {
             indicatorStatus = result;
 
         } else {
-           indicatorStatus = "-1";
+            indicatorStatus = "-1";
         }
         return indicatorStatus;
     }
@@ -386,21 +389,10 @@ public class TuyaCameraModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void getHistoryTest(final Promise promise) {
-        promise.resolve("test data");
-    }
-
-    @ReactMethod
-    public void getCameraHistoryData(final Promise promise) {
-        promise.resolve("test data");
-
-    }
-
-    @ReactMethod
     public void getHistoryData(ReadableMap params, final Promise promise) {
         mBackDataMonthCache = new HashMap<>();
         mBackDataDayCache = new HashMap<>();
-        final String date = params.getString("date");
+        final String date = params.getString("selectedDate");
 
         if (TextUtils.isEmpty(date)) {
             return;
@@ -409,15 +401,20 @@ public class TuyaCameraModule extends ReactContextBaseJavaModule {
             String[] substring = date.split("/");
             if (substring.length > 2) {
                 try {
+                    mCameraP2P = TuyaSmartCameraP2PFactory.generateTuyaSmartCamera(2);
+
                     int year = Integer.parseInt(substring[0]);
                     int mouth = Integer.parseInt(substring[1]);
                     int queryDay = Integer.parseInt(substring[2]);
+
                     mCameraP2P.queryRecordDaysByMonth(year, mouth, new OperationDelegateCallBack() {
+
                         @Override
                         public void onSuccess(int sessionId, int requestId, String data) {
+
                             MonthDays monthDays = com.alibaba.fastjson.JSONObject.parseObject(data, MonthDays.class);
                             mBackDataMonthCache.put(mCameraP2P.getMonthKey(), monthDays.getDataDays());
-                            L.e("TAG",   "MonthDays --- " + data);
+
                             handleDataDate(date, MessageUtil.getMessage(MSG_DATA_DATE, ARG1_OPERATE_SUCCESS, data), promise);
 
 //                            mHandler.sendMessage(MessageUtil.getMessage(MSG_DATA_DATE, ARG1_OPERATE_SUCCESS, data));
@@ -425,11 +422,13 @@ public class TuyaCameraModule extends ReactContextBaseJavaModule {
 
                         @Override
                         public void onFailure(int sessionId, int requestId, int errCode) {
+
                             promise.reject("-1", "Failure.");
                         }
                     });
                 } catch (Exception e) {
-                   // ToastUtil.shortToast(context, "Input Error");
+
+                    // ToastUtil.shortToast(context, "Input Error");
                     promise.reject("-1", "Failure.");
                 }
             }
@@ -437,6 +436,7 @@ public class TuyaCameraModule extends ReactContextBaseJavaModule {
     }
 
     private void handleDataDate(final String date, Message msg, final Promise promise) {
+
         if (msg.arg1 == ARG1_OPERATE_SUCCESS) {
             List<String> days = mBackDataMonthCache.get(mCameraP2P.getMonthKey());
 
@@ -453,7 +453,6 @@ public class TuyaCameraModule extends ReactContextBaseJavaModule {
                     mCameraP2P.queryRecordTimeSliceByDay(year, mouth, day, new OperationDelegateCallBack() {
                         @Override
                         public void onSuccess(int sessionId, int requestId, String data) {
-                            L.e("TAG", date + " --- " + data);
                             parsePlaybackData(data, promise);
                         }
 
@@ -491,8 +490,8 @@ public class TuyaCameraModule extends ReactContextBaseJavaModule {
             //Timepieces with data for the query day
             List<TimePieceBean> timePieceBeans = mBackDataDayCache.get(mCameraP2P.getDayKey());
             if (timePieceBeans != null) {
-                Log.d("TAG", "Time piece bean list"+timePieceBeans.size());
-                promise.resolve(timePieceBeans);
+                String jsonStr = JSONArray.toJSONString(timePieceBeans);
+                promise.resolve(jsonStr);
 
             } else {
                 promise.reject("0", "No data.");
@@ -501,5 +500,9 @@ public class TuyaCameraModule extends ReactContextBaseJavaModule {
         } else {
 
         }
+    }
+
+    @ReactMethod
+    public void playHistory(ReadableMap params, final Promise promise) {
     }
 }
