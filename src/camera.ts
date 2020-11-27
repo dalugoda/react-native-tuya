@@ -73,7 +73,7 @@ export function getCameraHistoryTest(params: CameraHistoryParams): Promise<any> 
 }
 
 export function playCameraHistoryTest(params: PlayCameraHistoryParams): Promise<any> {
-  return tuya.playHistory(params);
+  return tuya.playCameraHistory(params);
 }
 
 // export function historyDataPlay(): Promise<any> {

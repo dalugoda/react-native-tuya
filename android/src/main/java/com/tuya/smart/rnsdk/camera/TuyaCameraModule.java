@@ -503,7 +503,7 @@ public class TuyaCameraModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void playHistory(ReadableMap params, final Promise promise) {
+    public void playCameraHistory(ReadableMap params, final Promise promise) {
         int startTime = params.getInt("startTime");
         int endTime = params.getInt("endTime");
         int playStartTime = params.getInt("playStartTime");
