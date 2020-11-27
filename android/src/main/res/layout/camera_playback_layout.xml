@@ -33,7 +33,8 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/camera_video_view_Rl"
         android:orientation="horizontal"
-        android:padding="@dimen/mg_10">
+        android:padding="@dimen/mg_10"
+        android:visibility="gone">
 
         <TextView
             android:layout_width="wrap_content"
@@ -62,7 +63,8 @@
         android:layout_marginRight="@dimen/mg_10"
         android:text="query"
         android:textColor="@color/white"
-        android:textSize="15sp" />
+        android:textSize="15sp"
+        android:visibility="gone" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/query_list"
@@ -70,7 +72,8 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/query_btn"
         android:layout_marginLeft="@dimen/mg_10"
-        android:layout_marginRight="@dimen/mg_10" />
+        android:layout_marginRight="@dimen/mg_10"
+        android:visibility="gone" />
 
     <LinearLayout
         android:id="@+id/controller_layout"
@@ -78,7 +81,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:orientation="horizontal"
-        android:padding="@dimen/mg_10">
+        android:padding="@dimen/mg_10"
+        android:visibility="gone">
 
         <Button
             android:id="@+id/start_btn"
@@ -112,9 +116,5 @@
             android:textColor="@color/white"
             android:textSize="15sp" />
 
-
     </LinearLayout>
-
-
-
 </RelativeLayout>
