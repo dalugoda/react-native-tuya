@@ -31,9 +31,9 @@ export type CameraHistoryParams = {
 };
 
 export type PlayCameraHistoryParams = {
-  startTime: int;
-  endTime: int;
-  playStartTime: int;
+  startTime: string;
+  endTime: string;
+  playStartTime: string;
 };
 
 export function testFunction() {
