@@ -926,7 +926,7 @@ public class CustomCameraView extends RelativeLayout implements View.OnClickList
     public void onPhotoAlbumBtnClick() {
         try {
             WritableMap event = Arguments.createMap();
-            event.putString("name", "PhotoAlbum");
+            event.putString("name", "photoAlbum");
             ReactContext reactContext = (ReactContext)getContext();
             reactContext.getJSModule(RCTEventEmitter.class).receiveEvent(
                     getId(),
@@ -940,7 +940,7 @@ public class CustomCameraView extends RelativeLayout implements View.OnClickList
     public void onSettingsBtnClick() {
         try {
             WritableMap event = Arguments.createMap();
-            event.putString("name", "Settings");
+            event.putString("name", "settings");
             ReactContext reactContext = (ReactContext)getContext();
             reactContext.getJSModule(RCTEventEmitter.class).receiveEvent(
                     getId(),
