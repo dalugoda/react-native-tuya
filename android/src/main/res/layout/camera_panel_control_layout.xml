@@ -123,7 +123,7 @@
             android:text="replay"
             android:textColor="@color/camera_panel_control_color"
             android:textSize="@dimen/ts_13"
-            android:visibility="visible"/>
+            android:visibility="invisible"/>
 
     </LinearLayout>
 
