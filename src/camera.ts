@@ -37,11 +37,11 @@ export type PlayCameraHistoryParams = {
 };
 
 export type PauseHistoryPlayParams = {
-  p2pType: number;
+  p2pType: string;
 };
 
 export type ResumeHistoryPlayParams = {
-  p2pType: number;
+  p2pType: string;
 };
 
 export function testFunction() {
