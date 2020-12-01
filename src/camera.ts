@@ -36,6 +36,14 @@ export type PlayCameraHistoryParams = {
   playStartTime: string;
 };
 
+export type PauseHistoryPlayParams = {
+  p2pType: string;
+};
+
+export type ResumeHistoryPlayParams = {
+  p2pType: string;
+};
+
 export function testFunction() {
   return tuya.testFunction();
 }
@@ -74,6 +82,14 @@ export function getCameraHistoryTest(params: CameraHistoryParams): Promise<any> 
 
 export function playCameraHistoryTest(params: PlayCameraHistoryParams): Promise<any> {
   return tuya.playCameraHistory(params);
+}
+
+export function pauseHistoryPlay(params: PauseHistoryPlayParams): Promise<any> {
+  return tuya.pauseHistoryPlay(params);
+}
+
+export function resumeHistoryPlay(params: ResumeHistoryPlayParams): Promise<any> {
+  return tuya.resumeHistoryPlay(params);
 }
 
 // export function historyDataPlay(): Promise<any> {

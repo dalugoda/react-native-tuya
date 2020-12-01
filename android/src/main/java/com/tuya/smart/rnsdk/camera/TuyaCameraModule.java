@@ -507,12 +507,16 @@ public class TuyaCameraModule extends ReactContextBaseJavaModule {
         int startTime = params.getInt("startTime");
         int endTime = params.getInt("endTime");
         int playStartTime = params.getInt("playStartTime");
-        startPlayback(startTime, endTime, playStartTime, promise);
+        if (null != mCameraP2P) {
+            startPlayback(startTime, endTime, playStartTime, promise);
+        } else {
+            mCameraP2P = TuyaSmartCameraP2PFactory.generateTuyaSmartCamera(2);
+            startPlayback(startTime, endTime, playStartTime, promise);
+        }
     }
 
     private void startPlayback(int startTime, int endTime, int playStartTime, final Promise promise) {
 
-            if (null != mCameraP2P) {
                 mCameraP2P.startPlayBack(startTime, endTime, playStartTime, new OperationDelegateCallBack() {
                     @Override
                     public void onSuccess(int sessionId, int requestId, String data) {
@@ -536,7 +540,57 @@ public class TuyaCameraModule extends ReactContextBaseJavaModule {
 
                     }
                 });
+
+    }
+
+    @ReactMethod
+    public void pauseHistoryPlay(ReadableMap params, final Promise promise) {
+        int p2pType = params.getInt("p2pType");
+       if(mCameraP2P != null) {
+           pausePlay(promise);
+       } else {
+           mCameraP2P = TuyaSmartCameraP2PFactory.generateTuyaSmartCamera(p2pType);
+           pausePlay(promise);
+       }
+    }
+
+    private void pausePlay(final Promise promise) {
+        mCameraP2P.pausePlayBack(new OperationDelegateCallBack() {
+            @Override
+            public void onSuccess(int sessionId, int requestId, String data) {
+                promise.resolve(data);
             }
 
+            @Override
+            public void onFailure(int sessionId, int requestId, int errCode) {
+                promise.reject("-1", "Failure.");
+            }
+        });
+    }
+
+    @ReactMethod
+    public void resumeHistoryPlay(ReadableMap params, final Promise promise) {
+        int p2pType = params.getInt("p2pType");
+
+        if(mCameraP2P != null) {
+            resumePlay(promise);
+        } else {
+            mCameraP2P = TuyaSmartCameraP2PFactory.generateTuyaSmartCamera(p2pType);
+            resumePlay(promise);
+        }
+    }
+
+    private void resumePlay(final Promise promise) {
+        mCameraP2P.resumePlayBack(new OperationDelegateCallBack() {
+            @Override
+            public void onSuccess(int sessionId, int requestId, String data) {
+                promise.resolve(data);
+            }
+
+            @Override
+            public void onFailure(int sessionId, int requestId, int errCode) {
+                promise.reject("-1", "Failure.");
+            }
+        });
     }
 }
