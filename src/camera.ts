@@ -28,12 +28,14 @@ export type CameraPlaybackConfigParams = {
 
 export type CameraHistoryParams = {
   selectedDate: string;
+  p2pType: number;
 };
 
 export type PlayCameraHistoryParams = {
   startTime: string;
   endTime: string;
   playStartTime: string;
+  p2pType: number;
 };
 
 export type PauseHistoryPlayParams = {
@@ -76,11 +78,11 @@ export function getPlayBackConfigInfo(params: CameraPlaybackConfigParams): Promi
   return tuya.getPlayBackConfigInfo(params);
 }
 
-export function getCameraHistoryTest(params: CameraHistoryParams): Promise<any> {
+export function getCameraHistoryData(params: CameraHistoryParams): Promise<any> {
   return tuya.getHistoryData(params);
 }
 
-export function playCameraHistoryTest(params: PlayCameraHistoryParams): Promise<any> {
+export function playCameraHistory(params: PlayCameraHistoryParams): Promise<any> {
   return tuya.playCameraHistory(params);
 }
 

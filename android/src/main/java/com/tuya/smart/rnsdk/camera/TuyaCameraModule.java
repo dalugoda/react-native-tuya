@@ -393,6 +393,7 @@ public class TuyaCameraModule extends ReactContextBaseJavaModule {
         mBackDataMonthCache = new HashMap<>();
         mBackDataDayCache = new HashMap<>();
         final String date = params.getString("selectedDate");
+        final int p2pType = params.getInt("p2pType");
 
         if (TextUtils.isEmpty(date)) {
             return;
@@ -401,7 +402,7 @@ public class TuyaCameraModule extends ReactContextBaseJavaModule {
             String[] substring = date.split("/");
             if (substring.length > 2) {
                 try {
-                    mCameraP2P = TuyaSmartCameraP2PFactory.generateTuyaSmartCamera(2);
+                    mCameraP2P = TuyaSmartCameraP2PFactory.generateTuyaSmartCamera(p2pType);
 
                     int year = Integer.parseInt(substring[0]);
                     int mouth = Integer.parseInt(substring[1]);
@@ -507,10 +508,12 @@ public class TuyaCameraModule extends ReactContextBaseJavaModule {
         int startTime = params.getInt("startTime");
         int endTime = params.getInt("endTime");
         int playStartTime = params.getInt("playStartTime");
+        int p2pType = params.getInt("p2pType");
+
         if (null != mCameraP2P) {
             startPlayback(startTime, endTime, playStartTime, promise);
         } else {
-            mCameraP2P = TuyaSmartCameraP2PFactory.generateTuyaSmartCamera(2);
+            mCameraP2P = TuyaSmartCameraP2PFactory.generateTuyaSmartCamera(p2pType);
             startPlayback(startTime, endTime, playStartTime, promise);
         }
     }
@@ -546,8 +549,6 @@ public class TuyaCameraModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void pauseHistoryPlay(ReadableMap params, final Promise promise) {
         int p2pType = params.getInt("p2pType");
-        // String value = params.getString("p2pType");
-        // int p2pType = Integer.parseInt(value);
         if(mCameraP2P != null) {
            pausePlay(promise);
        } else {
@@ -573,8 +574,6 @@ public class TuyaCameraModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void resumeHistoryPlay(ReadableMap params, final Promise promise) {
         int p2pType = params.getInt("p2pType");
-        // String value = params.getString("p2pType");
-        // int p2pType = Integer.parseInt(value);
 
         if(mCameraP2P != null) {
             resumePlay(promise);
