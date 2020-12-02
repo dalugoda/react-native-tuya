@@ -545,8 +545,9 @@ public class TuyaCameraModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void pauseHistoryPlay(ReadableMap params, final Promise promise) {
-        String value = params.getString("p2pType");
-        int p2pType = Integer.parseInt(value);
+        int p2pType = params.getInt("p2pType");
+        // String value = params.getString("p2pType");
+        // int p2pType = Integer.parseInt(value);
         if(mCameraP2P != null) {
            pausePlay(promise);
        } else {
@@ -571,8 +572,9 @@ public class TuyaCameraModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void resumeHistoryPlay(ReadableMap params, final Promise promise) {
-        String value = params.getString("p2pType");
-        int p2pType = Integer.parseInt(value);
+        int p2pType = params.getInt("p2pType");
+        // String value = params.getString("p2pType");
+        // int p2pType = Integer.parseInt(value);
 
         if(mCameraP2P != null) {
             resumePlay(promise);
