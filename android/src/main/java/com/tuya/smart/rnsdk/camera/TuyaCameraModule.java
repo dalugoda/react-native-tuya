@@ -547,6 +547,34 @@ public class TuyaCameraModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
+    public void controlHistoryPlay(ReadableMap params, final Promise promise) {
+        int p2pType = params.getInt("p2pType");
+        String controlType = params.getString("controlType");
+        if(mCameraP2P != null) {
+            controlPlay(controlType, promise);
+        } else {
+            mCameraP2P = TuyaSmartCameraP2PFactory.generateTuyaSmartCamera(p2pType);
+            controlPlay(controlType, promise);
+        }
+    }
+
+    private void controlPlay(String type, Promise promise){
+        switch (type) {
+            case "pause":
+                pausePlay(promise);
+            break;
+            case "resume":
+                resumePlay(promise);
+            break;
+            case "stop":
+                stopPlay(promise);
+            break;
+            default:
+                break;
+        }
+    }
+
+    @ReactMethod
     public void pauseHistoryPlay(ReadableMap params, final Promise promise) {
         int p2pType = params.getInt("p2pType");
         if(mCameraP2P != null) {
@@ -585,6 +613,32 @@ public class TuyaCameraModule extends ReactContextBaseJavaModule {
 
     private void resumePlay(final Promise promise) {
         mCameraP2P.resumePlayBack(new OperationDelegateCallBack() {
+            @Override
+            public void onSuccess(int sessionId, int requestId, String data) {
+                promise.resolve(data);
+            }
+
+            @Override
+            public void onFailure(int sessionId, int requestId, int errCode) {
+                promise.reject("-1", "Failure.");
+            }
+        });
+    }
+
+    @ReactMethod
+    public void stopHistoryPlay(ReadableMap params, final Promise promise) {
+        int p2pType = params.getInt("p2pType");
+
+        if(mCameraP2P != null) {
+            stopPlay(promise);
+        } else {
+            mCameraP2P = TuyaSmartCameraP2PFactory.generateTuyaSmartCamera(p2pType);
+            stopPlay(promise);
+        }
+    }
+
+    private void stopPlay(final Promise promise) {
+        mCameraP2P.stopPlayBack(new OperationDelegateCallBack() {
             @Override
             public void onSuccess(int sessionId, int requestId, String data) {
                 promise.resolve(data);

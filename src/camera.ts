@@ -46,6 +46,15 @@ export type ResumeHistoryPlayParams = {
   p2pType: number;
 };
 
+export type StopHistoryPlayParams = {
+  p2pType: number;
+};
+
+export type ControlHistoryPlayParams = {
+  p2pType: number;
+  controlType: string;
+};
+
 export function testFunction() {
   return tuya.testFunction();
 }
@@ -86,27 +95,21 @@ export function playCameraHistory(params: PlayCameraHistoryParams): Promise<any>
   return tuya.playCameraHistory(params);
 }
 
-export function pauseHistoryPlay(params: PauseHistoryPlayParams): Promise<any> {
-  return tuya.pauseHistoryPlay(params);
+// export function pauseHistoryPlay(params: PauseHistoryPlayParams): Promise<any> {
+//   return tuya.pauseHistoryPlay(params);
+// }
+
+// export function resumeHistoryPlay(params: ResumeHistoryPlayParams): Promise<any> {
+//   return tuya.resumeHistoryPlay(params);
+// }
+
+// export function stopHistoryPlay(params: StopHistoryPlayParams): Promise<any> {
+//   return tuya.stopHistoryPlay(params);
+// }
+
+export function controlHistoryPlay(params: StopHistoryPlayParams): Promise<any> {
+  return tuya.controlHistoryPlay(params);
 }
 
-export function resumeHistoryPlay(params: ResumeHistoryPlayParams): Promise<any> {
-  return tuya.resumeHistoryPlay(params);
-}
-
-// export function historyDataPlay(): Promise<any> {
-//   return tuya.getTumbnail();
-// }
-// export function getCameraHistory(): Promise<any> {
-//   return tuya.getCameraHistoryData();
-// }
-
-// export function getHistoryData(params: CameraHistoryParams): Promise<any> {
-//   return tuya.getHistoryData(params);
-// }
-
-// export function playHistoryTest(): Promise<any> {
-//   return tuya.getTumbnail();
-// }
 
 
