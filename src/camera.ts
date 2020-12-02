@@ -95,18 +95,6 @@ export function playCameraHistory(params: PlayCameraHistoryParams): Promise<any>
   return tuya.playCameraHistory(params);
 }
 
-// export function pauseHistoryPlay(params: PauseHistoryPlayParams): Promise<any> {
-//   return tuya.pauseHistoryPlay(params);
-// }
-
-// export function resumeHistoryPlay(params: ResumeHistoryPlayParams): Promise<any> {
-//   return tuya.resumeHistoryPlay(params);
-// }
-
-// export function stopHistoryPlay(params: StopHistoryPlayParams): Promise<any> {
-//   return tuya.stopHistoryPlay(params);
-// }
-
 export function controlHistoryPlay(params: StopHistoryPlayParams): Promise<any> {
   return tuya.controlHistoryPlay(params);
 }
