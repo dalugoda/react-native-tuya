@@ -1,11 +1,15 @@
 package com.tuya.smart.rnsdk.camera.activity;
 
 import android.app.Activity;
+import android.util.Log;
 
 import com.facebook.react.bridge.ReactApplicationContext;
+import com.facebook.react.common.MapBuilder;
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.uimanager.ViewGroupManager;
 import com.facebook.react.uimanager.annotations.ReactProp;
+
+import java.util.Map;
 
 import androidx.annotation.NonNull;
 
@@ -29,7 +33,7 @@ public class TYCameraPlaybackManager extends ViewGroupManager<CameraPlaybackView
     @ReactProp(name = "devId")
     public void setDevId(CameraPlaybackView view, String devId) {
         view.setDevId(devId);
-       // view.init(mActivity, mCallerContext);
+        view.init(mActivity, mCallerContext);
     }
 
     @ReactProp(name = "mIsRunSoft")
@@ -50,16 +54,27 @@ public class TYCameraPlaybackManager extends ViewGroupManager<CameraPlaybackView
     @ReactProp(name = "localKey")
     public void setLocalKey(CameraPlaybackView view, String localKey) {
         view.setLocalKey(localKey);
+        //view.init(mActivity, mCallerContext);
     }
 
     @ReactProp(name = "p2pType")
     public void setP2pType(CameraPlaybackView view, int p2pType) {
         view.setP2pType(p2pType);
+        //view.init(mActivity, mCallerContext);
     }
 
     @NonNull
     @Override
     protected CameraPlaybackView createViewInstance(@NonNull ThemedReactContext reactContext) {
         return new CameraPlaybackView(reactContext.getCurrentActivity(),reactContext);
+    }
+
+    public Map getExportedCustomBubblingEventTypeConstants() {
+        return MapBuilder.builder()
+                .put(
+                        "onVideoPlaying",
+                        MapBuilder.of("phasedRegistrationNames",MapBuilder.of("bubbled", "onVideoPlay")))
+                .put("onFullScreenMode", MapBuilder.of("phasedRegistrationNames",MapBuilder.of("bubbled", "onFullScreenMode")))
+                .build();
     }
 }
