@@ -2,11 +2,13 @@ package com.tuya.smart.rnsdk.camera.activity;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.pm.ActivityInfo;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
@@ -17,6 +19,11 @@ import android.widget.RelativeLayout;
 
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
+import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.LifecycleEventListener;
+import com.facebook.react.bridge.ReactContext;
+import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.uimanager.events.RCTEventEmitter;
 import com.tuya.smart.android.common.utils.L;
 import com.tuya.smart.camera.camerasdk.bean.TimePieceBean;
 import com.tuya.smart.camera.camerasdk.typlayer.callback.OnP2PCameraListener;
@@ -54,7 +61,7 @@ import static com.tuya.smart.rnsdk.camera.utils.Constants.MSG_DATA_DATE_BY_DAY_F
 import static com.tuya.smart.rnsdk.camera.utils.Constants.MSG_DATA_DATE_BY_DAY_SUCC;
 import static com.tuya.smart.rnsdk.camera.utils.Constants.MSG_MUTE;
 
-public class CameraPlaybackView extends RelativeLayout implements OnP2PCameraListener, View.OnClickListener, TuyaCameraView.CreateVideoViewCallback{
+public class CameraPlaybackView extends RelativeLayout implements OnP2PCameraListener, View.OnClickListener, TuyaCameraView.CreateVideoViewCallback, LifecycleEventListener {
     View cameraPlaybackView;
     private String TAG = "cameraPlaybackView";
     private Context context;
@@ -71,8 +78,14 @@ public class CameraPlaybackView extends RelativeLayout implements OnP2PCameraLis
     private EditText dateInputEdt;
     private RecyclerView queryRv;
     private Button queryBtn, startBtn, pauseBtn, resumeBtn, stopBtn;
+    private ImageView mFullScreenImg;
+    private RelativeLayout mVideoViewContainer;
+    private int videoContainerWidth = 0;
+    private boolean isFullScreen = false;
+    public static boolean isPlaybackView = false;
 
     Context mContext;
+    ReactContext reactContext;
 
     protected Map<String, List<String>> mBackDataMonthCache;
     protected Map<String, List<TimePieceBean>> mBackDataDayCache;
@@ -90,19 +103,58 @@ public class CameraPlaybackView extends RelativeLayout implements OnP2PCameraLis
     public CameraPlaybackView(Activity activity, Context context) {
         super(context);
         this.context = context;
-        init(activity, context);
+        reactContext = (ReactContext) context;
+        reactContext.addLifecycleEventListener(this);
+        mActivity = activity;
+        //init(activity, context);
     }
 
     public void init(Activity activity, Context context) {
+
         mActivity = activity;
         mContext = context;
+        isPlaybackView = true;
         View view = inflate(context, R.layout.camera_playback_layout,this);
         view.findViewById(R.id.camera_playback_view_container);
         cameraPlaybackView = view;
+
+        WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        videoContainerWidth = windowManager.getDefaultDisplay().getWidth();
+
+        // Handle physical back button press
+        view.setFocusableInTouchMode(true);
+        view.requestFocus();
+        view.setOnKeyListener(new OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if (event.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_BACK) {
+
+                    if(isFullScreen) {
+                        setFullScreenView();
+                        return true;
+                    } else {
+                        isPlaybackView = false;
+
+                        return false;
+                    }
+
+                } else {
+                    if(isFullScreen) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+                //  return false;
+            }
+        });
+
         initView();
         initData();
 
         initListener();
+
+        System.out.println(Integer.MAX_VALUE);
     }
 
 
@@ -117,17 +169,20 @@ public class CameraPlaybackView extends RelativeLayout implements OnP2PCameraLis
         resumeBtn = findViewById(R.id.resume_btn);
         stopBtn = findViewById(R.id.stop_btn);
         queryRv = findViewById(R.id.query_list);
+        mFullScreenImg = findViewById(R.id.playback_full_screen);
+        mVideoViewContainer = findViewById(R.id.playback_video_view_Rl);
 
         //播放器view最好宽高比设置16:9
         WindowManager windowManager = (WindowManager) mContext.getSystemService(WINDOW_SERVICE);
         int width = windowManager.getDefaultDisplay().getWidth();
         int height = width * ASPECT_RATIO_WIDTH / ASPECT_RATIO_HEIGHT;
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(width, height);
-        findViewById(R.id.camera_video_view_Rl).setLayoutParams(layoutParams);
+        findViewById(R.id.playback_video_view_Rl).setLayoutParams(layoutParams);
     }
 
 
     private void initData() {
+
         mBackDataMonthCache = new HashMap<>();
         mBackDataDayCache = new HashMap<>();
 //        mIsRunSoft = getIntent().getBooleanExtra("isRunsoft", false);
@@ -146,12 +201,12 @@ public class CameraPlaybackView extends RelativeLayout implements OnP2PCameraLis
         queryDateList = new ArrayList<>();
         adapter = new CameraPlaybackTimeAdapter(mContext, queryDateList);
         queryRv.setAdapter(adapter);
-
         //there is no need to reconnect（createDevice） with a single column object（Of course，you can create it again）
         mCameraP2P = TuyaSmartCameraP2PFactory.generateTuyaSmartCamera(p2pType);
             mCameraP2P.connectPlayback();
 
-            muteImg.setSelected(true);
+
+        muteImg.setSelected(true);
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd");
         Date date = new Date(System.currentTimeMillis());
             dateInputEdt.setText(simpleDateFormat.format(date));
@@ -165,7 +220,7 @@ public class CameraPlaybackView extends RelativeLayout implements OnP2PCameraLis
             mCameraP2P.generateCameraView(mVideoView.createdView());
         }
 
-}
+    }
 
     private void initListener() {
         muteImg.setOnClickListener(this);
@@ -174,6 +229,7 @@ public class CameraPlaybackView extends RelativeLayout implements OnP2PCameraLis
         pauseBtn.setOnClickListener(this);
         resumeBtn.setOnClickListener(this);
         stopBtn.setOnClickListener(this);
+        mFullScreenImg.setOnClickListener(this);
         adapter.setListener(new CameraPlaybackTimeAdapter.OnTimeItemListener() {
             @Override
             public void onClick(TimePieceBean timePieceBean) {
@@ -182,7 +238,6 @@ public class CameraPlaybackView extends RelativeLayout implements OnP2PCameraLis
                         timePieceBean.getStartTime()+1500, new OperationDelegateCallBack() {
                             @Override
                             public void onSuccess(int sessionId, int requestId, String data) {
-                                Log.d(TAG, "OperationDelegateCallBack "+data);
 
                                 isPlayback = true;
                             }
@@ -194,7 +249,6 @@ public class CameraPlaybackView extends RelativeLayout implements OnP2PCameraLis
                         }, new OperationDelegateCallBack() {
                             @Override
                             public void onSuccess(int sessionId, int requestId, String data) {
-                                Log.d(TAG, "OperationDelegateCallBack "+data);
 
                                 isPlayback = false;
                             }
@@ -233,7 +287,6 @@ public class CameraPlaybackView extends RelativeLayout implements OnP2PCameraLis
             //Timepieces with data for the query day
             List<TimePieceBean> timePieceBeans = mBackDataDayCache.get(mCameraP2P.getDayKey());
             if (timePieceBeans != null) {
-                Log.d(TAG, "Time piece bean list"+timePieceBeans.size());
                 queryDateList.addAll(timePieceBeans);
             } else {
                // showErrorToast();
@@ -317,6 +370,8 @@ public class CameraPlaybackView extends RelativeLayout implements OnP2PCameraLis
             resumeClick();
         } else if (id == R.id.stop_btn) {
             stopClick();
+        } else if (id == R.id.playback_full_screen) {
+            setFullScreenView();
         }
     }
 
@@ -445,6 +500,60 @@ public class CameraPlaybackView extends RelativeLayout implements OnP2PCameraLis
         });
     }
 
+    private void setFullScreenView() {
+        try {
+            if(isFullScreen) {
+                isFullScreen = false;
+                changeHistoryViewVisibility(false);
+                mFullScreenImg.setImageDrawable(getResources().getDrawable(R.drawable.ic_full_screen));
+                mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                setVideoViewSize(isFullScreen);
+            } else {
+                isFullScreen = true;
+                changeHistoryViewVisibility(true);
+                mFullScreenImg.setImageDrawable(getResources().getDrawable(R.drawable.ic_full_screen_exit));
+                mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                setVideoViewSize(isFullScreen);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void changeHistoryViewVisibility(boolean isFullScreen) {
+        try {
+            WritableMap event = Arguments.createMap();
+            event.putBoolean("isFullScreen", isFullScreen);
+            ReactContext reactContext = (ReactContext)getContext();
+            reactContext.getJSModule(RCTEventEmitter.class).receiveEvent(
+                    getId(),
+                    "onFullScreenMode",
+                    event);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void setVideoViewSize(boolean fullScreenMode) {
+        RelativeLayout.LayoutParams layoutParams;
+        int width = videoContainerWidth;
+        int height = 0;
+        int topPadding = 0;
+        int bottomPadding = 0;
+        if(fullScreenMode) {
+            width = LayoutParams.MATCH_PARENT;
+            height = LayoutParams.MATCH_PARENT;
+            bottomPadding = 25;
+            topPadding = 35;
+        } else {
+            height = width * ASPECT_RATIO_WIDTH / ASPECT_RATIO_HEIGHT;
+        }
+
+        layoutParams = new RelativeLayout.LayoutParams(width, height);
+        mVideoViewContainer.setLayoutParams(layoutParams);
+        mVideoViewContainer.setPadding(0,topPadding,0,bottomPadding);
+    }
 
     public void setMIsRunSoft (boolean mIsRunSoft) {
         this.mIsRunSoft = mIsRunSoft;
@@ -460,6 +569,7 @@ public class CameraPlaybackView extends RelativeLayout implements OnP2PCameraLis
 
     public void setLocalKey (String localKey) {
         this.localKey = localKey;
+        //init(mActivity, context);
     }
 
     public void setP2pType (int p2pType) {
@@ -472,12 +582,11 @@ public class CameraPlaybackView extends RelativeLayout implements OnP2PCameraLis
 
     @Override
     public void receiveFrameDataForMediaCodec(int i, byte[] bytes, int i1, int i2, byte[] bytes1, boolean b, int i3) {
-
     }
 
     @Override
     public void onReceiveFrameYUVData(int i, ByteBuffer byteBuffer, ByteBuffer byteBuffer1, ByteBuffer byteBuffer2, int i1, int i2, int i3, int i4, long l, long l1, long l2, Object o) {
-
+        onVideoPlaying(l);
     }
 
     @Override
@@ -508,5 +617,64 @@ public class CameraPlaybackView extends RelativeLayout implements OnP2PCameraLis
     @Override
     public void onActionUP() {
 
+    }
+
+    public void onVideoPlaying(long time) {
+        try {
+            WritableMap event = Arguments.createMap();
+            event.putInt("time", (int)time);
+            ReactContext reactContext = (ReactContext)getContext();
+            reactContext.getJSModule(RCTEventEmitter.class).receiveEvent(
+                    getId(),
+                    "onVideoPlaying",
+                    event);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onHostResume() {
+
+        if(isPlaybackView) {
+            mVideoView.onResume();
+            if (null != mCameraP2P) {
+                AudioUtils.getModel(context);
+                mCameraP2P.registorOnP2PCameraListener(this);
+                mCameraP2P.generateCameraView(mVideoView.createdView());
+            }
+        }
+    }
+
+    @Override
+    public void onHostPause() {
+        if(isPlaybackView) {
+            mVideoView.onPause();
+            if (isPlayback) {
+                mCameraP2P.stopPlayBack(null);
+            }
+            if (null != mCameraP2P) {
+                mCameraP2P.removeOnP2PCameraListener();
+            }
+            AudioUtils.changeToNomal(context);
+        }
+    }
+
+    @Override
+    public void onHostDestroy() {
+//        if (null != mCameraP2P) {
+//            mCameraP2P.disconnect(new OperationDelegateCallBack() {
+//                @Override
+//                public void onSuccess(int sessionId, int requestId, String data) {
+//
+//                }
+//
+//                @Override
+//                public void onFailure(int sessionId, int requestId, int errCode) {
+//
+//                }
+//            });
+//        }
+//        TuyaSmartCameraP2PFactory.onDestroyTuyaSmartCamera();
     }
 }

@@ -75,6 +75,8 @@ import androidx.lifecycle.LifecycleOwner;
 public class CustomCameraView extends RelativeLayout implements View.OnClickListener, TuyaCameraView.CreateVideoViewCallback, LifecycleEventListener {
     View cameraView;
 
+    private String TAG = "CustomCameraView";
+
     private Toolbar toolbar;
     private TuyaCameraView mVideoView;
     private ImageView muteImg;
@@ -91,6 +93,7 @@ public class CustomCameraView extends RelativeLayout implements View.OnClickList
     private boolean isPlay = false;
     private int previewMute = ICameraP2P.MUTE;
     private int videoClarity = ICameraP2P.HD;
+    private boolean isCustomCameraView = false;
 
     private String picPath, videoPath;
 
@@ -131,8 +134,8 @@ public class CustomCameraView extends RelativeLayout implements View.OnClickList
 
 
     public void init(Activity activity, Context context) {
-        Log.d("TAG ", "init  ");
         mActivity = activity;
+        isCustomCameraView = true;
         View view = inflate(context, R.layout.activity_camera_live_preview,this);
         view.findViewById(R.id.camera_video_view_container);
         cameraView = view;
@@ -158,7 +161,7 @@ public class CustomCameraView extends RelativeLayout implements View.OnClickList
             public void onReceiveSpeakerEchoData(ByteBuffer byteBuffer, int sampleRate) {
                 if (null != mCameraP2P){
                     int length = byteBuffer.capacity();
-                    Log.d("TAG", "receiveSpeakerEchoData pcmlength " + length + " sampleRate " + sampleRate);
+                    Log.d(TAG, "receiveSpeakerEchoData pcmlength " + length + " sampleRate " + sampleRate);
                     byte[] pcmData = new byte[length];
                     byteBuffer.get(pcmData, 0, length);
                     mCameraP2P.sendAudioTalkData(pcmData,length);
@@ -349,7 +352,6 @@ public class CustomCameraView extends RelativeLayout implements View.OnClickList
 
     private void getApi() {
         try {
-            Log.d("TAG", "dev id "+devId);
             Map postData = new HashMap();
             postData.put("devId", devId);
             mSmartCameraP2P = new TuyaSmartCameraP2P();
@@ -369,7 +371,7 @@ public class CustomCameraView extends RelativeLayout implements View.OnClickList
                 }
             });
         } catch (Exception ex) {
-            Log.d("TAG", "error "+ex.getMessage());
+            Log.d(TAG, "error "+ex.getMessage());
         }
     }
 
@@ -377,7 +379,6 @@ public class CustomCameraView extends RelativeLayout implements View.OnClickList
         mCameraP2P.createDevice(new OperationDelegateCallBack() {
             @Override
             public void onSuccess(int sessionId, int requestId, String data) {
-                Log.d("TAG", "init camera view onsuccess");
                 mHandler.sendMessage(MessageUtil.getMessage(Constants.MSG_CREATE_DEVICE, Constants.ARG1_OPERATE_SUCCESS));
             }
 
@@ -540,7 +541,7 @@ public class CustomCameraView extends RelativeLayout implements View.OnClickList
 
             @Override
             public void onFailure(int sessionId, int requestId, int errCode) {
-                Log.d("TAG", "start preview onFailure, errCode: " + errCode);
+                Log.d(TAG, "start preview onFailure, errCode: " + errCode);
                 isPlay = false;
             }
         });
@@ -848,60 +849,81 @@ public class CustomCameraView extends RelativeLayout implements View.OnClickList
 
     @Override
     public void onHostResume() {
-        mVideoView.onResume();
-        //must register again,or can't callback
-        if (null != mCameraP2P) {
-            AudioUtils.getModel(context);
-            mCameraP2P.registorOnP2PCameraListener(mP2PListener);
-            mCameraP2P.generateCameraView(mVideoView.createdView());
-            if (mCameraP2P.isConnecting()) {
-                mCameraP2P.startPreview(new OperationDelegateCallBack() {
-                    @Override
-                    public void onSuccess(int sessionId, int requestId, String data) {
-                        isPlay = true;
-                    }
+        if(!CameraPlaybackView.isPlaybackView) {
+            mVideoView.onResume();
+            //must register again,or can't callback
+            if (null != mCameraP2P) {
+                AudioUtils.getModel(context);
+                mCameraP2P.registorOnP2PCameraListener(mP2PListener);
+                mCameraP2P.generateCameraView(mVideoView.createdView());
+                if (mCameraP2P.isConnecting()) {
+                    mCameraP2P.startPreview(new OperationDelegateCallBack() {
+                        @Override
+                        public void onSuccess(int sessionId, int requestId, String data) {
+                            isPlay = true;
+                        }
 
-                    @Override
-                    public void onFailure(int sessionId, int requestId, int errCode) {
-                        Log.d("TAG", "start preview onFailure, errCode: " + errCode);
-                    }
-                });
+                        @Override
+                        public void onFailure(int sessionId, int requestId, int errCode) {
+                            Log.d(TAG, "start preview onFailure, errCode: " + errCode);
+                        }
+                    });
+                }
             }
         }
     }
 
     @Override
     public void onHostPause() {
-        mVideoView.onPause();
-        if (isSpeaking) {
-            mCameraP2P.stopAudioTalk(null);
-        }
-        if (isPlay) {
-            mCameraP2P.stopPreview(new OperationDelegateCallBack() {
-                @Override
-                public void onSuccess(int sessionId, int requestId, String data) {
 
-                }
+        if(isCustomCameraView) {
+            mVideoView.onPause();
+            if (isSpeaking) {
+                mCameraP2P.stopAudioTalk(null);
+            }
+            if (isPlay) {
+                mCameraP2P.stopPreview(new OperationDelegateCallBack() {
+                    @Override
+                    public void onSuccess(int sessionId, int requestId, String data) {
 
-                @Override
-                public void onFailure(int sessionId, int requestId, int errCode) {
+                    }
 
-                }
-            });
-            isPlay = false;
-        }
-        if (null != mCameraP2P) {
-            mCameraP2P.removeOnP2PCameraListener();
-        }
-        AudioUtils.changeToNomal(context);
-        if (mSmartCameraP2P != null) {
-            mSmartCameraP2P.destroyCameraBusiness();
+                    @Override
+                    public void onFailure(int sessionId, int requestId, int errCode) {
+
+                    }
+                });
+                isPlay = false;
+            }
+            if (null != mCameraP2P) {
+                mCameraP2P.removeOnP2PCameraListener();
+            }
+            AudioUtils.changeToNomal(context);
+            if (mSmartCameraP2P != null) {
+                mSmartCameraP2P.destroyCameraBusiness();
+            }
         }
     }
 
     @Override
     public void onHostDestroy() {
 
+        if(!CameraPlaybackView.isPlaybackView) {
+            if (null != mCameraP2P) {
+                mCameraP2P.disconnect(new OperationDelegateCallBack() {
+                    @Override
+                    public void onSuccess(int sessionId, int requestId, String data) {
+
+                    }
+
+                    @Override
+                    public void onFailure(int sessionId, int requestId, int errCode) {
+
+                    }
+                });
+            }
+        }
+            TuyaSmartCameraP2PFactory.onDestroyTuyaSmartCamera();
     }
 
     @Override
@@ -953,6 +975,8 @@ public class CustomCameraView extends RelativeLayout implements View.OnClickList
 
     public void onReplayBtnClick() {
         try {
+            isCustomCameraView = false;
+
             WritableMap event = Arguments.createMap();
             event.putString("name", "playback");
             ReactContext reactContext = (ReactContext)getContext();
