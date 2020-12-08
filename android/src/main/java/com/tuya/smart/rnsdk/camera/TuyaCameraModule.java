@@ -215,7 +215,6 @@ public class TuyaCameraModule extends ReactContextBaseJavaModule {
             @Override
             public void onDpUpdate(String s, String s1) {
                 L.d("TuyaHomeSdk", "onDpUpdate devId:" + s + "  dps " + s1);
-                //此处监听所有dp点的信息
             }
 
             @Override

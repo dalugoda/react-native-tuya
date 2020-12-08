@@ -704,12 +704,14 @@ public class CustomCameraView extends RelativeLayout implements View.OnClickList
                 @Override
                 public void onSuccess(int sessionId, int requestId, String data) {
                     isSpeaking = false;
+                    speakTxt.setSelected(false);
                     mHandler.sendMessage(MessageUtil.getMessage(Constants.MSG_TALK_BACK_OVER, Constants.ARG1_OPERATE_SUCCESS));
                 }
 
                 @Override
                 public void onFailure(int sessionId, int requestId, int errCode) {
                     isSpeaking = false;
+                    speakTxt.setSelected(false);
                     mHandler.sendMessage(MessageUtil.getMessage(Constants.MSG_TALK_BACK_OVER, Constants.ARG1_OPERATE_FAIL));
 
                 }
@@ -721,12 +723,14 @@ public class CustomCameraView extends RelativeLayout implements View.OnClickList
                     @Override
                     public void onSuccess(int sessionId, int requestId, String data) {
                         isSpeaking = true;
+                        speakTxt.setSelected(true);
                         mHandler.sendMessage(MessageUtil.getMessage(Constants.MSG_TALK_BACK_BEGIN, Constants.ARG1_OPERATE_SUCCESS));
                     }
 
                     @Override
                     public void onFailure(int sessionId, int requestId, int errCode) {
                         isSpeaking = false;
+                        speakTxt.setSelected(false);
                         mHandler.sendMessage(MessageUtil.getMessage(Constants.MSG_TALK_BACK_BEGIN, Constants.ARG1_OPERATE_FAIL));
                     }
                 });
