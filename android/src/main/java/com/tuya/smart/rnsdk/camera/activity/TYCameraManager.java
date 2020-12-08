@@ -60,12 +60,4 @@ public class TYCameraManager extends ViewGroupManager<CustomCameraView> {
                 MapBuilder.of("phasedRegistrationNames",MapBuilder.of("bubbled", "onSettingsPress")))
                 .build();
     }
-
-    // public Map getExportedCustomBubblingEventTypeConstants() {
-    //     return MapBuilder.builder()
-    //             .put(
-    //              "onSettingsClick",
-    //             MapBuilder.of("phasedRegistrationNames",MapBuilder.of("bubbled", "onSettingsPress")))
-    //             .build();
-    // }
 }
