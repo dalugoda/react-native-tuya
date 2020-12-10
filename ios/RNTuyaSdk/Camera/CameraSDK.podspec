@@ -48,7 +48,6 @@ TODO: Add long description of the pod here.
   
   s.subspec 'SmartScene' do |ss|
     ss.source_files = 'Camera/Classes/SmartScene/**/*.{h,m}'
-    ss.resources = 'Classes/IPC/Assets/*', 'Classes/IPC/Assets/*.lproj'
 
     ss.dependency 'CameraSDK/Base'
     ss.dependency 'SDWebImage'
@@ -81,7 +80,7 @@ TODO: Add long description of the pod here.
   
   s.subspec 'IPC' do |ss|
     ss.source_files = 'Camera/Classes/IPC/**/*.{h,m}'
-    ss.resources = 'Camera/Classes/IPC/Assets/**/*'
+    ss.resources = 'Classes/IPC/Assets/*', 'Classes/IPC/Assets/*.lproj'
     
     ss.dependency 'CameraSDK/Base'
     ss.dependency 'TuyaSmartCameraKit'
