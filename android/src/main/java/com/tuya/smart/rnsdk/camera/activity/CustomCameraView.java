@@ -844,9 +844,9 @@ public class CustomCameraView extends RelativeLayout implements View.OnClickList
     }
 
     private void recordStatue(boolean isRecording) {
-        speakTxt.setEnabled(!isRecording);
-        photoTxt.setEnabled(!isRecording);
-        replayTxt.setEnabled(!isRecording);
+        // speakTxt.setEnabled(!isRecording);
+        // photoTxt.setEnabled(!isRecording);
+        // replayTxt.setEnabled(!isRecording);
         recordTxt.setEnabled(true);
         recordTxt.setSelected(isRecording);
     }
