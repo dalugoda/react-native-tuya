@@ -29,6 +29,7 @@ export type CameraPlaybackConfigParams = {
 export type CameraHistoryParams = {
   selectedDate: string;
   p2pType: number;
+  devId: string;
 };
 
 export type PlayCameraHistoryParams = {
