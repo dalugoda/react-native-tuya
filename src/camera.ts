@@ -33,6 +33,7 @@ export type CameraHistoryParams = {
 };
 
 export type PlayCameraHistoryParams = {
+  timeInfo: object;
   startTime: string;
   endTime: string;
   playStartTime: string;
